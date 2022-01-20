@@ -1,10 +1,11 @@
 # %%
+from unittest import result
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-def readfile(f):
+def readFile(f):
     #
     with open(f) as file:
         result = []
@@ -13,18 +14,50 @@ def readfile(f):
             result.append(row)
     return result
 
-    
-lifeExp = readfile('life-expectancy.csv')
-gdp = readfile('gdp-per-capita-worldbank.csv')
-result = []
+
+def dataCollector():
+    gdp = readFile('gdp-per-capita-worldbank.csv')
+    lifeExp = readFile('life-expectancy.csv')
+    gdp = makeDict(gdp)
+    lifeExp = makeDict(lifeExp)
+
+    result = []
+    for key in gdp:
+        if key in lifeExp:
+            result.append([key,gdp[key],lifeExp[key]])
+    return result
 
 
-rowtmp = [""]
-for rows in reversed(lifeExp):
-    for row in reversed(gdp):
-        if rows[0] == row[0] and rows[2] == row[2] and rowtmp[0] != rows[0]:
-            tmp  = [rows[0],rows[3],row[3]] 
-            result.append(tmp)
-            rowtmp = rows
-            break
-print(result)
+
+
+def makeDict(l):
+    l.pop(0)
+    result = {}
+    for rows in l:
+        result[rows[0] + rows[2]] = rows[3]
+    return result
+
+def writeToCSV(l,fileName):
+    with open(fileName,'w') as file:
+        writer = csv.writer(file)
+        header =['Country','GDP per capita','Life expectancy']
+        writer.writerow(header)
+        
+        for row in l:
+            writer.writerow(row)
+
+#writeToCSV(dataCollector(),'outputAll.csv')
+
+
+def getLatest():
+    rows = dataCollector()
+    result = []
+    tmp=[""]
+    slicer = slice(-4)
+    for row in reversed(rows):
+        if row[0][slicer] != tmp:
+            result.insert(0,row)
+            tmp = row[0][slicer]
+    return result
+
+writeToCSV(getLatest(),'outputLatest.csv')
