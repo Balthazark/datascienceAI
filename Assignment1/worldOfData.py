@@ -1,9 +1,8 @@
-# %%
-from unittest import result
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
+import pandas as pd
 
 def readFile(f):
     #
@@ -42,7 +41,7 @@ def writeToCSV(l,fileName):
         writer = csv.writer(file)
         header =['Country','GDP per capita','Life expectancy']
         writer.writerow(header)
-        
+                
         for row in l:
             writer.writerow(row)
 
@@ -60,4 +59,37 @@ def getLatest():
             tmp = row[0][slicer]
     return result
 
-writeToCSV(getLatest(),'outputLatest.csv')
+#writeToCSV(getLatest(),'outputLatest.csv')
+def getStandardDiv():
+    data = getLatest()
+
+    n = len(data)
+    lifeexp = [float(x[2]) for x in data]
+    meanLife = sum(lifeexp)/n
+    print('meanLife:',meanLife)
+
+    #Found how to calculate this online 
+    #https://stackabuse.com/calculating-variance-and-standard-deviation-in-python/
+    deviationsLife = [(x - meanLife) ** 2 for x in lifeexp]
+    varianceLife = sum(deviationsLife)/n
+    oneStandLife = np.sqrt(varianceLife)
+
+    aboveMeanLife = []
+    for i in range(len(data)):
+        if lifeexp[i] > (meanLife + oneStandLife):
+            aboveMeanLife.append(data[i][0])
+    #print(aboveMeanLife)
+
+    gdp = [float(x[1]) for x in data]
+    meanGdp = sum(gdp) / n
+    print('meanGDP:',meanGdp)
+
+    aboveLifeBelowGDP = []
+    for i in range(len(data)):
+        if lifeexp[i] > meanLife and gdp[i] < meanGdp:
+            aboveLifeBelowGDP.append(data[i][0])
+    
+    #print('div:',deviations)
+    #print('var:',variance)
+
+getStandardDiv()
