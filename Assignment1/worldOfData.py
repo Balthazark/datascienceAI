@@ -78,7 +78,7 @@ def getStandardDiv():
     for i in range(len(data)):
         if lifeexp[i] > (meanLife + oneStandLife):
             aboveMeanLife.append(data[i][0])
-    #print(aboveMeanLife)
+    print(aboveMeanLife)
 
     gdp = [float(x[1]) for x in data]
     meanGdp = sum(gdp) / n
